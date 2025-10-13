@@ -83,7 +83,7 @@ func main() {
 }"
     
     # Write script to temporary file
-    local tmpfile=2"/tmp/proposal_script.gno"
+    local tmpfile="/tmp/proposal_script.gno"
     echo "$script" > "$tmpfile"
     echo $tmpfile
 
