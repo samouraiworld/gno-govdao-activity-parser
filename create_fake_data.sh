@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Generated
 # Script to create fake governance DAO data using gnokey
 # This replicates the functionality of CreateFakeGovDAOData
 
@@ -13,8 +14,31 @@ GAS_WANTED="${GAS_WANTED:-50000000}"
 DAO_PKGPATH="gno.land/r/gov/dao/v3/impl"
 DAO_PROXY_PKGPATH="gno.land/r/gov/dao"
 
+# Account names (use existing keys)
+MEMBER_ACCOUNT_A="a"
+MEMBER_ACCOUNT_B="b"
+MEMBER_ACCOUNT_C="c"
+MEMBER_ACCOUNT_D="d"
+
 # Test account (you should replace with your actual test account)
-DEFAULT_ACCOUNT="a"
+DEFAULT_ACCOUNT="$MEMBER_ACCOUNT_A"
+
+# Mnemonics for account creation (fill these in with your mnemonics)
+MEMBER_MNEMONIC_A="print grid fox select chef cook beauty produce hospital recipe fabric umbrella news alley caution pattern sibling success wheat review write another hub attitude"  # Fill with account admin mnemonic
+MEMBER_MNEMONIC_B="tomato rubber future nest adapt syrup mansion buyer square ladder love sister quit left bind hurt abstract slab grunt stay festival ugly cash legal"  # Fill with member1 mnemonic  
+MEMBER_MNEMONIC_C="cannon spray glance dad short between office sing warm between kingdom olive glare oblige engage hamster save myth ribbon chicken shallow begin display dutch"  # Fill with member2 mnemonic
+MEMBER_MNEMONIC_D="emerge tide pitch monitor exclude flush ceiling catch breeze cruel stock hard final join wool borrow bag whale canoe input position orphan hair better"  # Fill with member3 mnemonic
+
+# Address variables (will be populated after account creation)
+MEMBER_A_ADDR="g1yj0hrkajxgsxqw7x4r2fxek3s6c3syhwc55mh5"
+MEMBER_B_ADDR="g1df0jqsjfly5dh9qrfx9hmdq9ncs3klkycp2k4k"
+MEMBER_C_ADDR="g1lrzc8qmj2j4gp94z3qzaxan9exp6w59gavrq6c"
+MEMBER_D_ADDR="g1cke7p70zcqtkgc29l6fk8d4zymjwva7slllpj4"
+
+# Fake addresses for T2/T1 proposals
+MEMBER_T2_1_ADDR="g1fakemember1111111111111111111111111111"
+MEMBER_T2_2_ADDR="g1fakemember2222222222222222222222222222"  
+MEMBER_T1_1_ADDR="g1fakemember3333333333333333333333333333"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -32,6 +56,27 @@ log_success() {
 
 log_step() {
     echo -e "${YELLOW}[STEP]${NC} $1"
+}
+
+register_namespace() {
+    local namespace=$1
+    local creator=$2
+
+    log_step "Register namespace $namespace to address $creator"
+
+    gnokey maketx call \
+        -pkgpath "gno.land/r/gnoland/users/v1" \
+        -func "Register" \
+        -args "$namespace" \
+        -gas-fee "$GAS_FEE" \
+        -gas-wanted "$GAS_WANTED" \
+        -send "1000000ugnot" \
+        -broadcast \
+        -chainid "$CHAINID" \
+        -remote "$REMOTE" \
+        "$creator"
+
+    log_success "Namespace registered"
 }
 
 # Function to add a member directly
@@ -87,7 +132,6 @@ func main() {
     echo "$script" > "$tmpfile"
     echo $tmpfile
 
-    sleep 1
     # Execute the script
     gnokey maketx run \
         -gas-fee "$GAS_FEE" \
@@ -158,22 +202,64 @@ main() {
     log_info "Remote: $REMOTE"
     echo ""
     
+    # Check that existing accounts are available
+    log_info "=== Checking Existing Accounts ==="
+    
+    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_A "; then
+        echo "ERROR: Account '$MEMBER_ACCOUNT_A' not found. Please make sure it exists."
+        exit 1
+    fi
+    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_B "; then
+        echo "ERROR: Account '$MEMBER_ACCOUNT_B' not found. Please make sure it exists."
+        exit 1
+    fi
+    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_C "; then
+        echo "ERROR: Account '$MEMBER_ACCOUNT_C' not found. Please make sure it exists."
+        exit 1
+    fi
+    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_D "; then
+        echo "ERROR: Account '$MEMBER_ACCOUNT_D' not found. Please make sure it exists."
+        exit 1
+    fi
+    
+    log_success "All accounts found"
+    
+    # Using existing accounts
+    log_info "=== Using Existing Accounts ==="
+    log_success "Using existing accounts a, b, c, d"
+    
+    log_info "Admin (account $MEMBER_ACCOUNT_A): $MEMBER_A_ADDR"
+    log_info "Member 1 (account $MEMBER_ACCOUNT_B): $MEMBER_B_ADDR"
+    log_info "Member 2 (account $MEMBER_ACCOUNT_C): $MEMBER_C_ADDR" 
+    log_info "Member 3 (account $MEMBER_ACCOUNT_D): $MEMBER_D_ADDR"
+    log_info "T2 Member 1 (proposal): $MEMBER_T2_1_ADDR"
+    log_info "T2 Member 2 (proposal): $MEMBER_T2_2_ADDR"
+    log_info "T1 Member 1 (proposal): $MEMBER_T1_1_ADDR"
+    
+    # Register namespaces for the 3 members using their own accounts
+    log_info "=== Registering Namespaces ==="
+    
+    register_namespace "member000" "$MEMBER_ACCOUNT_A"
+    register_namespace "member111" "$MEMBER_ACCOUNT_B"
+    register_namespace "member222" "$MEMBER_ACCOUNT_C"
+    register_namespace "member333" "$MEMBER_ACCOUNT_D"
+    
     # Example: Add 3 T3 members directly
     log_info "=== Adding T3 Members ==="
-    
+
     # Member 1: Add a T3 member
     add_member "$DEFAULT_ACCOUNT" \
-        "g1fake1member1111111111111111111111" \
+        "$MEMBER_B_ADDR" \
         "T3"
     
     # Member 2: Add another T3 member
     add_member "$DEFAULT_ACCOUNT" \
-        "g1fake2member2222222222222222222222" \
+        "$MEMBER_C_ADDR" \
         "T3"
     
     # Member 3: Add another T3 member
     add_member "$DEFAULT_ACCOUNT" \
-        "g1fake3member3333333333333333333333" \
+        "$MEMBER_D_ADDR" \
         "T3"
     
     echo ""
@@ -182,19 +268,19 @@ main() {
     # Create proposals to add T2 and T1 members (requires voting)
     # Proposal 1: Add a T2 member
     create_member_proposal "$DEFAULT_ACCOUNT" \
-        "g1fake1t2member111111111111111111111" \
+        "$MEMBER_D_ADDR" \
         "T2" \
         "# T2 Member Portfolio\n\n- Senior contributor\n- 2+ years experience\n- Active in governance"
     
     # Proposal 2: Add another T2 member
     create_member_proposal "$DEFAULT_ACCOUNT" \
-        "g1fake2t2member222222222222222222222" \
+        "$MEMBER_T2_2_ADDR" \
         "T2" \
         "# T2 Member Portfolio\n\n- Core developer\n- Community leader\n- Technical expertise"
     
     # Proposal 3: Add a T1 member
     create_member_proposal "$DEFAULT_ACCOUNT" \
-        "g1fake1t1member111111111111111111111" \
+        "$MEMBER_T1_1_ADDR" \
         "T1" \
         "# T1 Member Portfolio\n\n- Executive team\n- Strategic advisor\n- Long-term vision"
     
@@ -202,11 +288,11 @@ main() {
     log_info "=== Voting on Proposals ==="
     
     # Vote YES on all proposals (proposal IDs start at 0)
-    vote_on_proposal "$DEFAULT_ACCOUNT" "0" "YES"
+    vote_on_proposal "$MEMBER_ACCOUNT_A" "0" "YES"
     
-    vote_on_proposal "$DEFAULT_ACCOUNT" "1" "YES"
+    vote_on_proposal "$MEMBER_ACCOUNT_A" "1" "YES"
     
-    vote_on_proposal "$DEFAULT_ACCOUNT" "2" "YES"
+    vote_on_proposal "$MEMBER_ACCOUNT_A" "2" "YES"
     
     echo ""
     log_success "Fake data creation completed!"
@@ -220,22 +306,42 @@ main() {
 
 # Show usage if help is requested
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    echo "Usage: $0 [account_name]"
+    echo "Usage: $0"
     echo ""
     echo "Creates fake governance DAO data using gnokey commands"
     echo ""
-    echo "Arguments:"
-    echo "  account_name    The gnokey account to use (default: test1)"
+    echo "Prerequisites:"
+    echo "  You must have the following existing accounts in your keyring:"
+    echo "    - '$MEMBER_ACCOUNT_A' (DEFAULT_ACCOUNT for creating proposals)"
+    echo "    - '$MEMBER_ACCOUNT_B' (T3 Member 1)"
+    echo "    - '$MEMBER_ACCOUNT_C' (T3 Member 2)" 
+    echo "    - '$MEMBER_ACCOUNT_D' (T3 Member 3)"
+    echo ""
+    echo "  The script will use these existing accounts."
     echo ""
     echo "Environment variables:"
     echo "  CHAINID         Chain ID (default: dev)"
     echo "  REMOTE          Remote node address (default: tcp://127.0.0.1:26657)"
     echo "  GAS_FEE         Gas fee (default: 1000000ugnot)"
-    echo "  GAS_WANTED      Gas wanted (default: 5000000)"
+    echo "  GAS_WANTED      Gas wanted (default: 50000000)"
     echo ""
     echo "Examples:"
-    echo "  $0 test1"
-    echo "  CHAINID=portal-loop REMOTE=https://rpc.gno.land:443 $0 myaccount"
+    echo "  $0"
+    echo "  CHAINID=portal-loop REMOTE=https://rpc.gno.land:443 $0"
+    echo ""
+    echo "Features:"
+    echo "  - Use existing accounts a, b, c, d"
+    echo "  - Register namespaces for T3 members using their own accounts"
+    echo "  - Add DAO T3 members directly (using member accounts)"
+    echo "  - Create proposals for higher tier members (T2, T1)"
+    echo "  - Vote on all created proposals using admin account"
+    echo ""
+    echo "Username rules (v1):"
+    echo "  - Must start with 3 letters (lowercase)"
+    echo "  - Must end with 3 numbers"
+    echo "  - Max 20 characters"
+    echo "  - Only special character allowed: _"
+    echo "  - Registration cost: 1 GNOT"
     exit 0
 fi
 
