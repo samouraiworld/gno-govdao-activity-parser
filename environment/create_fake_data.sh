@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Generated
+# Generated using Claude Sonnet 4.5
 # Script to create fake governance DAO data using gnokey
 # This replicates the functionality of CreateFakeGovDAOData
 
@@ -13,6 +13,7 @@ GAS_FEE="${GAS_FEE:-1000000ugnot}"
 GAS_WANTED="${GAS_WANTED:-50000000}"
 DAO_PKGPATH="gno.land/r/gov/dao/v3/impl"
 DAO_PROXY_PKGPATH="gno.land/r/gov/dao"
+SCRIPT_DIR=$(dirname "$0")
 
 # Account names (use existing keys)
 MEMBER_ACCOUNT_A="a"
@@ -30,10 +31,10 @@ MEMBER_MNEMONIC_C="cannon spray glance dad short between office sing warm betwee
 MEMBER_MNEMONIC_D="emerge tide pitch monitor exclude flush ceiling catch breeze cruel stock hard final join wool borrow bag whale canoe input position orphan hair better"  # Fill with member3 mnemonic
 
 # Address variables (will be populated after account creation)
-MEMBER_A_ADDR="g1yj0hrkajxgsxqw7x4r2fxek3s6c3syhwc55mh5"
-MEMBER_B_ADDR="g1df0jqsjfly5dh9qrfx9hmdq9ncs3klkycp2k4k"
-MEMBER_C_ADDR="g1lrzc8qmj2j4gp94z3qzaxan9exp6w59gavrq6c"
-MEMBER_D_ADDR="g1cke7p70zcqtkgc29l6fk8d4zymjwva7slllpj4"
+MEMBER_A_ADDR="g17raryfukyf7an7p5gcklru4kx4ulh7wnx44ync"
+MEMBER_B_ADDR="g1lmxuk0q36pvmemyntuvf4z0dq7raft8muztr58"
+MEMBER_C_ADDR="g1ypx6eq5p4nscjfc6g4s5glwupmfrar5tcqaeus"
+MEMBER_D_ADDR="g1y4306nqdmyed2xlsw9ay0e0894jtu0mrvmmm4n"
 
 # Fake addresses for T2/T1 proposals
 MEMBER_T2_1_ADDR="g1fakemember1111111111111111111111111111"
@@ -58,13 +59,39 @@ log_step() {
     echo -e "${YELLOW}[STEP]${NC} $1"
 }
 
+# Function to create accounts from mnemonics
+create_accounts() {
+    log_info "=== Creating Accounts from Mnemonics ==="
+    
+    # Delete existing accounts if they exist (ignore errors)
+    log_step "Deleting existing accounts (if any)"
+    (printf "\n" | gnokey delete a -home $SCRIPT_DIR -insecure-password-stdin=true) || true
+    (printf "\n" | gnokey delete b -home $SCRIPT_DIR -insecure-password-stdin=true) || true
+    (printf "\n" | gnokey delete c -home $SCRIPT_DIR -insecure-password-stdin=true) || true
+    (printf "\n" | gnokey delete d -home $SCRIPT_DIR -insecure-password-stdin=true) || true
+    
+    log_step "Creating account $MEMBER_ACCOUNT_A"
+    printf "\n$MEMBER_MNEMONIC_A\n" | gnokey add --recover "$MEMBER_ACCOUNT_A" -insecure-password-stdin -home $SCRIPT_DIR
+    
+    log_step "Creating account $MEMBER_ACCOUNT_B"
+    printf "\n$MEMBER_MNEMONIC_B\n" | gnokey add --recover "$MEMBER_ACCOUNT_B" -insecure-password-stdin -home $SCRIPT_DIR
+    
+    log_step "Creating account $MEMBER_ACCOUNT_C"
+    printf "\n$MEMBER_MNEMONIC_C\n" | gnokey add --recover "$MEMBER_ACCOUNT_C" -insecure-password-stdin -home $SCRIPT_DIR
+    
+    log_step "Creating account $MEMBER_ACCOUNT_D"
+    printf "\n$MEMBER_MNEMONIC_D\n" | gnokey add --recover "$MEMBER_ACCOUNT_D" -insecure-password-stdin -home $SCRIPT_DIR
+    
+    log_success "All accounts created successfully"
+}
+
 register_namespace() {
     local namespace=$1
     local creator=$2
 
     log_step "Register namespace $namespace to address $creator"
 
-    gnokey maketx call \
+    printf "\n" | gnokey maketx call \
         -pkgpath "gno.land/r/gnoland/users/v1" \
         -func "Register" \
         -args "$namespace" \
@@ -74,6 +101,8 @@ register_namespace() {
         -broadcast \
         -chainid "$CHAINID" \
         -remote "$REMOTE" \
+        -home $SCRIPT_DIR \
+        -insecure-password-stdin=true \
         "$creator"
 
     log_success "Namespace registered"
@@ -87,7 +116,7 @@ add_member() {
     
     log_step "Adding member $new_member_addr to tier $tier"
     
-    gnokey maketx call \
+    printf "\n" | gnokey maketx call \
         -pkgpath "$DAO_PKGPATH" \
         -func "AddMember" \
         -args "$new_member_addr" \
@@ -97,6 +126,8 @@ add_member() {
         -broadcast \
         -chainid "$CHAINID" \
         -remote "$REMOTE" \
+        -home $SCRIPT_DIR \
+        -insecure-password-stdin=true \
         "$creator"
     
     log_success "Member added"
@@ -133,13 +164,15 @@ func main() {
     echo $tmpfile
 
     # Execute the script
-    gnokey maketx run \
+    printf "\n" | gnokey maketx run \
         -gas-fee "$GAS_FEE" \
         -gas-wanted "$GAS_WANTED" \
         -broadcast \
         -chainid "$CHAINID" \
         -remote "$REMOTE" \
+        -home $SCRIPT_DIR \
         "$creator" \
+        -insecure-password-stdin=true \
         $tmpfile
     
     # Clean up
@@ -156,7 +189,7 @@ vote_on_proposal() {
     
     log_step "Voting $vote_option on proposal $proposal_id as $voter"
     
-    gnokey maketx call \
+    printf "\n" | gnokey maketx call \
         -pkgpath "$DAO_PROXY_PKGPATH" \
         -func "MustVoteOnProposalSimple" \
         -args "$proposal_id" \
@@ -167,6 +200,8 @@ vote_on_proposal() {
         -broadcast \
         -chainid "$CHAINID" \
         -remote "$REMOTE" \
+        -home $SCRIPT_DIR \
+        -insecure-password-stdin=true \
         "$voter"
     
     log_success "Vote submitted"
@@ -179,7 +214,7 @@ execute_proposal() {
     
     log_step "Executing proposal $proposal_id"
     
-    gnokey maketx call \
+    printf "\n" | gnokey maketx call \
         -pkgpath "$DAO_PROXY_PKGPATH" \
         -func "ExecuteProposal" \
         -args "$proposal_id" \
@@ -189,6 +224,8 @@ execute_proposal() {
         -broadcast \
         -chainid "$CHAINID" \
         -remote "$REMOTE" \
+        -home $SCRIPT_DIR \
+        -insecure-password-stdin=true \
         "$executor"
     
     log_success "Proposal executed"
@@ -202,31 +239,7 @@ main() {
     log_info "Remote: $REMOTE"
     echo ""
     
-    # Check that existing accounts are available
-    log_info "=== Checking Existing Accounts ==="
-    
-    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_A "; then
-        echo "ERROR: Account '$MEMBER_ACCOUNT_A' not found. Please make sure it exists."
-        exit 1
-    fi
-    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_B "; then
-        echo "ERROR: Account '$MEMBER_ACCOUNT_B' not found. Please make sure it exists."
-        exit 1
-    fi
-    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_C "; then
-        echo "ERROR: Account '$MEMBER_ACCOUNT_C' not found. Please make sure it exists."
-        exit 1
-    fi
-    if ! gnokey list | grep -q " $MEMBER_ACCOUNT_D "; then
-        echo "ERROR: Account '$MEMBER_ACCOUNT_D' not found. Please make sure it exists."
-        exit 1
-    fi
-    
-    log_success "All accounts found"
-    
-    # Using existing accounts
-    log_info "=== Using Existing Accounts ==="
-    log_success "Using existing accounts a, b, c, d"
+    create_accounts
     
     log_info "Admin (account $MEMBER_ACCOUNT_A): $MEMBER_A_ADDR"
     log_info "Member 1 (account $MEMBER_ACCOUNT_B): $MEMBER_B_ADDR"
@@ -304,46 +317,6 @@ main() {
     log_info "You may need more votes or execute proposals manually"
 }
 
-# Show usage if help is requested
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    echo "Usage: $0"
-    echo ""
-    echo "Creates fake governance DAO data using gnokey commands"
-    echo ""
-    echo "Prerequisites:"
-    echo "  You must have the following existing accounts in your keyring:"
-    echo "    - '$MEMBER_ACCOUNT_A' (DEFAULT_ACCOUNT for creating proposals)"
-    echo "    - '$MEMBER_ACCOUNT_B' (T3 Member 1)"
-    echo "    - '$MEMBER_ACCOUNT_C' (T3 Member 2)" 
-    echo "    - '$MEMBER_ACCOUNT_D' (T3 Member 3)"
-    echo ""
-    echo "  The script will use these existing accounts."
-    echo ""
-    echo "Environment variables:"
-    echo "  CHAINID         Chain ID (default: dev)"
-    echo "  REMOTE          Remote node address (default: tcp://127.0.0.1:26657)"
-    echo "  GAS_FEE         Gas fee (default: 1000000ugnot)"
-    echo "  GAS_WANTED      Gas wanted (default: 50000000)"
-    echo ""
-    echo "Examples:"
-    echo "  $0"
-    echo "  CHAINID=portal-loop REMOTE=https://rpc.gno.land:443 $0"
-    echo ""
-    echo "Features:"
-    echo "  - Use existing accounts a, b, c, d"
-    echo "  - Register namespaces for T3 members using their own accounts"
-    echo "  - Add DAO T3 members directly (using member accounts)"
-    echo "  - Create proposals for higher tier members (T2, T1)"
-    echo "  - Vote on all created proposals using admin account"
-    echo ""
-    echo "Username rules (v1):"
-    echo "  - Must start with 3 letters (lowercase)"
-    echo "  - Must end with 3 numbers"
-    echo "  - Max 20 characters"
-    echo "  - Only special character allowed: _"
-    echo "  - Registration cost: 1 GNOT"
-    exit 0
-fi
 
 # Run main function
 main
