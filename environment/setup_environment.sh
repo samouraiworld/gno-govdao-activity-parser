@@ -15,7 +15,6 @@ echo "🚀 Setting up GnoLove development environment..."
 CURRENT_DIR=$(pwd)
 PARENT_DIR=$(dirname "$CURRENT_DIR")
 E2E_DIR="$CURRENT_DIR"
-PIDS=()
 
 # Parameters
 GNO_REPO="${1:-git@github.com:gnolang/gno.git}"
@@ -31,12 +30,7 @@ cleanup() {
     echo ""
     echo "🛑 Cleaning up background processes..."
     
-    for pid in "${PIDS[@]}"; do
-        if kill -0 "$pid" 2>/dev/null; then
-            echo "Killing process $pid..."
-            kill "$pid" 2>/dev/null || true
-        fi
-    done
+    pkill -9 gnodev 
     
     echo "✅ Cleanup complete!"
     exit 0
@@ -102,9 +96,6 @@ make install
 # Start gnodev
 echo "🚀 Starting gnodev..."
 nohup bash -c gnodev ./examples/gno.land/r/gov/dao/v3/loader &
-GNODEV_PID=$!
-PIDS+=($GNODEV_PID)
-echo "gnodev started with PID: $GNODEV_PID"
 
 sleep 5
 
