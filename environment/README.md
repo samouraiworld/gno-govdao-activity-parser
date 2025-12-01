@@ -20,7 +20,43 @@ Press `Ctrl+C` to stop.
 | `make setup` | Just setup (clone & build) |
 | `make fake-data` | Add test proposals & members |
 
-## 💡 Need More?
+### Customize Your Setup
+
+Use environment variables to configure:
+
+```bash
+# Custom repository
+make all GNO_REPO=git@github.com:moul/gno.git
+
+# Custom branch
+make all BRANCH=dev
+
+# Custom address
+make all ADDRESS=g1youraddress123
+
+# All together
+make all GNO_REPO=git@github.com:moul/gno.git BRANCH=dev ADDRESS=g1youraddress123
+```
+
+**Available variables:**
+- `GNO_REPO` - Repository URL (default: `git@github.com:gnolang/gno.git`)
+- `BRANCH` - Git branch (default: `master`)
+- `ADDRESS` - Your Gno address (default: `g17raryfukyf7an7p5gcklru4kx4ulh7wnx44ync`)
+
+## 💡 Advanced Options
+
+<details>
+<summary>Using the Script Directly</summary>
+
+```bash
+./setup_environment.sh [REPO] [BRANCH] [ADDRESS]
+```
+
+Example:
+```bash
+./setup_environment.sh "git@github.com:your/gno.git" "your-branch" "g1youraddress"
+```
+</details>
 
 <details>
 <summary>Prerequisites</summary>
@@ -29,27 +65,6 @@ Press `Ctrl+C` to stop.
 - Go (1.21+)
 - Make
 - A web browser
-</details>
-
-<details>
-<summary>Custom Address</summary>
-
-```bash
-./setup_environment.sh "" "g1youraddress123"
-```
-</details>
-
-<details>
-<summary>Custom Gno Repository & Branch</summary>
-
-```bash
-./setup_environment.sh "git@github.com:your/gno.git" "your-branch" "g1youraddress" 
-```
-
-Parameters:
-1. Repository URL (default: `git@github.com:gnolang/gno.git`)
-2. Branch (default: `master`)
-3. Address (default: `g17raryfukyf7an7p5gcklru4kx4ulh7wnx44ync`)
 </details>
 
 <details>

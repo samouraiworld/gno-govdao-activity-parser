@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Generated using Claude Sonnet 4.5
+# Generated
 # Environment Setup Script for GnoLove E2E Testing
 # This script can be sourced by other scripts or run standalone
 

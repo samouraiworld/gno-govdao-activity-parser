@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Generated using Claude Sonnet 4.5
+# Generated
 # Script to create fake governance DAO data using gnokey
 # This replicates the functionality of CreateFakeGovDAOData
 
