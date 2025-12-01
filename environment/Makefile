@@ -29,8 +29,11 @@ help:
 	@echo "  make all"
 
 # Setup and start in one command
-all:
-	@./setup_environment.sh "$(GNO_REPO)" "$(BRANCH)" "$(ADDRESS)"
+all: 
+	@./setup_environment.sh "$(GNO_REPO)" "$(BRANCH)" "$(ADDRESS)" 
+	@sleep 5
+	@echo "🎲 Creating fake DAO data..."
+	@./create_fake_data.sh
 
 # Set up the environment
 setup:
@@ -40,3 +43,6 @@ setup:
 fake-data:
 	@echo "🎲 Creating fake DAO data..."
 	@./create_fake_data.sh
+
+clean:
+	pkill -9 gnodev 

@@ -25,20 +25,6 @@ echo "📦 Using gno repository: $GNO_REPO"
 echo "🌿 Using branch: $GNO_BRANCH"
 echo "📍 Using address: $ADDRESS"
 
-# Cleanup function to kill all background processes
-cleanup() {
-    echo ""
-    echo "🛑 Cleaning up background processes..."
-    
-    pkill -9 gnodev 
-    
-    echo "✅ Cleanup complete!"
-    exit 0
-}
-
-# Trap signals to run cleanup function
-trap cleanup EXIT INT TERM
-
 echo "📁 Working in: $CURRENT_DIR"
 
 echo "📦 Setting up gno repository..."
@@ -110,14 +96,9 @@ else
     echo "⚠️  No supported browser found. Please open http://localhost:8888/r/gov/dao/v3/loader manually"
 fi
 
-echo ""
-echo "🔗 Useful links:"
-echo "   Loader: http://localhost:8888/r/gov/dao/v3/loader"
-echo "   DAO Implementation: http://localhost:8888/r/gov/dao/v3/impl"
 
-
-# If script is run directly (not sourced), keep it running
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# If script is run directly (not from make), keep it running
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]] && [[ -z "${MAKEFLAGS}" ]]; then
     echo "⏳ All services are running. Press Ctrl+C to stop everything..."
     while true; do
         sleep 1

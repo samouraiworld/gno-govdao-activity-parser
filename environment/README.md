@@ -19,6 +19,8 @@ Press `Ctrl+C` to stop.
 | `make all` | Setup + start everything |
 | `make setup` | Just setup (clone & build) |
 | `make fake-data` | Add test proposals & members |
+| `make clean` | Kill gnodev instance in background |
+
 
 ### Customize Your Setup
 

@@ -320,3 +320,8 @@ main() {
 
 # Run main function
 main
+
+echo ""
+echo "🔗 Useful links:"
+echo "   Loader: http://localhost:8888/r/gov/dao/v3/loader"
+echo "   DAO Implementation: http://localhost:8888/r/gov/dao/v3/impl"
