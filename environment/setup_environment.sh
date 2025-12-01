@@ -110,6 +110,11 @@ else
     echo "⚠️  No supported browser found. Please open http://localhost:8888/r/gov/dao/v3/loader manually"
 fi
 
+echo ""
+echo "🔗 Useful links:"
+echo "   Loader: http://localhost:8888/r/gov/dao/v3/loader"
+echo "   DAO Implementation: http://localhost:8888/r/gov/dao/v3/impl"
+
 
 # If script is run directly (not sourced), keep it running
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
