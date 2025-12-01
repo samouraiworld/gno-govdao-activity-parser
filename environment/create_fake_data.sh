@@ -307,21 +307,17 @@ main() {
     
     vote_on_proposal "$MEMBER_ACCOUNT_A" "2" "YES"
     
-    echo ""
-    log_success "Fake data creation completed!"
-    log_info "Added 3 T3 members directly"
-    log_info "Created 3 proposals (2 for T2, 1 for T1)"
-    log_info "Voted YES on all proposals"
-    log_info ""
-    log_info "Note: Proposals need supermajority to pass"
-    log_info "You may need more votes or execute proposals manually"
-}
-
-
-# Run main function
-main
-
+echo ""
+log_success "Fake data creation completed!"
+log_info "Added 3 T3 members directly"
+log_info "Created 3 proposals (2 for T2, 1 for T1)"
+log_info "Voted YES on all proposals"
+log_info ""
+log_info "Note: Proposals need supermajority to pass"
+log_info "You may need more votes or execute proposals manually"
 echo ""
 echo "🔗 Useful links:"
 echo "   Loader: http://localhost:8888/r/gov/dao/v3/loader"
 echo "   DAO Implementation: http://localhost:8888/r/gov/dao/v3/impl"
+echo ""
+echo "💡 To stop gnodev, run: `make clean`"
