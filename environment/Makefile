@@ -1,5 +1,5 @@
 # Generated
-.PHONY: help setup fake-data all
+.PHONY: help setup fake-data all clean
 
 # Configuration (can be overridden)
 GNO_REPO ?= git@github.com:gnolang/gno.git
@@ -14,6 +14,7 @@ help:
 	@echo "  make all        - Setup and start everything (recommended)"
 	@echo "  make setup      - Set up the environment (clone & build Gno)"
 	@echo "  make fake-data  - Create fake DAO data for testing"
+	@echo "  make clean      - Stop gnodev process"
 	@echo ""
 	@echo "Configuration (use environment variables to override):"
 	@echo "  GNO_REPO        - Gno repository URL (default: git@github.com:gnolang/gno.git)"
@@ -32,7 +33,6 @@ help:
 all: 
 	@./setup_environment.sh "$(GNO_REPO)" "$(BRANCH)" "$(ADDRESS)" 
 	@sleep 5
-	@echo "🎲 Creating fake DAO data..."
 	@./create_fake_data.sh
 
 # Set up the environment
@@ -41,7 +41,6 @@ setup:
 
 # Create fake data
 fake-data:
-	@echo "🎲 Creating fake DAO data..."
 	@./create_fake_data.sh
 
 clean:
